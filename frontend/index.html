@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>LBSCEK Hostel Management</title>
+    <link href="https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div class="app">
+        <header class="header">
+            <div class="logo">LH LBSCEK</div>
+            <nav id="nav">
+                <a href="#" data-page="home">Home</a>
+                <a href="#" data-page="login" id="loginLink">Login</a>
+            </nav>
+            <div class="user" id="userArea" style="display:none">
+                <span id="userName"></span>
+                <button id="logoutBtn" class="btn btn-sm">Logout</button>
+            </div>
+        </header>
+
+        <main class="main">
+            <div id="homePage" class="page">
+                <section class="hero">
+                    <h1>Ladies Hostel LBSCEK</h1>
+                    <p>LBS College of Engineering, Kasaragod — Hostel Management System</p>
+                    <div class="features">
+                        <div class="feature">
+                            <span class="icon">🍽</span>
+                            <h3>Mess Attendance</h3>
+                            <p>Face recognition-based meal tracking</p>
+                        </div>
+                        <div class="feature">
+                            <span class="icon">🚪</span>
+                            <h3>Entry & Exit</h3>
+                            <p>Digital monitoring and logs</p>
+                        </div>
+                        <div class="feature">
+                            <span class="icon">💰</span>
+                            <h3>Fee Payments</h3>
+                            <p>View records and pay online</p>
+                        </div>
+                    </div>
+                </section>
+            </div>
+
+            <div id="loginPage" class="page" style="display:none">
+                <div class="card login-card">
+                    <h2>Login</h2>
+                    <form id="loginForm">
+                        <div class="form-group">
+                            <label>Login as</label>
+                            <select id="loginType">
+                                <option value="student">Student</option>
+                                <option value="staff">Staff</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label>Email</label>
+                            <input type="email" id="loginEmail" required placeholder="your@email.com">
+                        </div>
+                        <div class="form-group">
+                            <label>Password</label>
+                            <input type="password" id="loginPassword" required placeholder="••••••••">
+                        </div>
+                        <a href="#" id="forgotPasswordLink" style="margin-top: -8px; margin-bottom: 12px; display: block; font-size: 0.85rem; color: #ddd;">Forgot Password?</a>
+                        <button type="submit" class="btn btn-full">Sign In</button>
+                        <p id="loginError" class="error" style="display:none"></p>
+                    </form>
+                </div>
+            </div>
+
+            <div id="forgotPasswordPage" class="page" style="display:none">
+                <div class="card login-card">
+                    <h2>Reset Password</h2>
+                    <form id="forgotPasswordForm">
+                        <div class="form-group">
+                            <label>Enter your registered email</label>
+                            <input type="email" id="forgotEmail" required placeholder="your@email.com">
+                        </div>
+                        <button type="submit" class="btn btn-full">Send Reset Link</button>
+                        <a href="#" id="backToLoginLink" style="margin-top: 12px; display: block; text-align: center; font-size: 0.9rem; color: #ddd;">Back to Login</a>
+                        <p id="forgotError" class="error" style="display:none"></p>
+                        <p id="forgotSuccess" class="success" style="display:none; color: #2ecc71; margin-top: 10px;"></p>
+                    </form>
+                </div>
+            </div>
+
+            <div id="resetPasswordPage" class="page" style="display:none">
+                <div class="card login-card">
+                    <h2>Set New Password</h2>
+                    <form id="resetPasswordForm">
+                        <input type="hidden" id="resetToken">
+                        <div class="form-group">
+                            <label>New Password</label>
+                            <input type="password" id="newPassword" required placeholder="••••••••" minlength="6">
+                        </div>
+                        <button type="submit" class="btn btn-full">Update Password</button>
+                    </form>
+                </div>
+            </div>
+
+            <div id="studentDashboard" class="page" style="display:none">
+                <h1>Student Dashboard</h1>
+                <div class="tabs">
+                    <button class="tab active" data-tab="attendance">Attendance</button>
+                    <button class="tab" data-tab="payments">Payments</button>
+                </div>
+                <div id="attendanceTab" class="tab-content">
+                    <div class="card">
+                        <h3>Mess Attendance</h3>
+                        <div id="messList"></div>
+                    </div>
+                    <div class="card">
+                        <h3>Entry / Exit Log</h3>
+                        <div id="entryExitList"></div>
+                    </div>
+                </div>
+                <div id="paymentsTab" class="tab-content" style="display:none">
+                    <div class="card">
+                        <h3>Fee Structure</h3>
+                        <div id="feeStructure"></div>
+                    </div>
+                    <div class="card">
+                        <h3>My Payments</h3>
+                        <div id="myPayments"></div>
+                        <button id="payFeeBtn" class="btn" style="margin-top:16px">Pay Fee</button>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+    <script src="app.js"></script>
+</body>
+</html>

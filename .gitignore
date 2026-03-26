@@ -1,0 +1,10 @@
+node_modules/
+backend/node_modules/
+backend/uploads/
+backend/.env
+face-service/venv/
+face-service/__pycache__/
+face-service/encodings/
+*.log
+.env
+.env.local
