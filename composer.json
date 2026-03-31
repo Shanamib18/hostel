@@ -1,0 +1,7 @@
+{
+    "name": "lbscek/hostel",
+    "description": "Hostel Management System for LBSCEK",
+    "require": {
+        "dompdf/dompdf": "^2.0"
+    }
+}

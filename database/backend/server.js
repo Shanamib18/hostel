@@ -17,6 +17,15 @@ app.use(cors());
 app.use(express.json({ limit: '10mb' }));
 app.use(express.urlencoded({ extended: true }));
 
+// Global middleware for headers including a robust CSP to permit local connections
+app.use((req, res, next) => {
+  res.setHeader("Content-Security-Policy", "default-src 'self'; script-src 'self' 'unsafe-inline'; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com; font-src 'self' https://fonts.gstatic.com; img-src 'self' data:; connect-src 'self' http://localhost:3000 http://127.0.0.1:3000 ws://localhost:3000 http://localhost:3000/.well-known/appspecific/com.chrome.devtools.json;");
+  next();
+});
+
+// Handle Chrome DevTools internal requests with 200 OK and valid JSON to clear 404 noise
+app.get('/.well-known/appspecific/com.chrome.devtools.json', (req, res) => res.status(200).json({}));
+
 // Serve static frontend files
 app.use(express.static(path.join(__dirname, '../frontend')));
 

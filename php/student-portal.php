@@ -43,6 +43,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     } elseif (isset($_POST['mark_as_paid'])) {
         $bill_id = $_POST['bill_id'] ?? 0;
+        $transaction_id = trim($_POST['transaction_id'] ?? '');
         
         // Check for fine applicability and update status
         $bill = $pdo->prepare("SELECT * FROM monthly_bills WHERE id = ? AND student_id = ?");
@@ -54,8 +55,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             if ($b['due_date'] && date('Y-m-d') > $b['due_date'] && $b['fine'] == 0) {
                 $fineToAdd = 10.00;
             }
-            $stmt = $pdo->prepare("UPDATE monthly_bills SET status = 'submitted', fine = fine + ?, total_amount = total_amount + ? WHERE id = ?");
-            $stmt->execute([$fineToAdd, $fineToAdd, $bill_id]);
+            $stmt = $pdo->prepare("UPDATE monthly_bills SET status = 'submitted', transaction_id = ?, fine = fine + ?, total_amount = total_amount + ? WHERE id = ?");
+            $stmt->execute([$transaction_id, $fineToAdd, $fineToAdd, $bill_id]);
         }
         header("Location: student-portal.php"); // Redirect to prevent re-submission
         exit;
@@ -267,7 +268,7 @@ try {
                         </td>
                         <td>
                             <?php if ($due['status'] === 'pending'): ?>
-                            <form method="POST"><input type="hidden" name="bill_id" value="<?= $due['id'] ?>"><button type="submit" name="mark_as_paid" class="btn" style="padding: 6px 12px; font-size: 0.9rem;">Pay / Mark as Paid</button></form>
+                            <form method="POST"><input type="hidden" name="bill_id" value="<?= $due['id'] ?>"><input type="text" name="transaction_id" placeholder="Transaction ID" required><button type="submit" name="mark_as_paid" class="btn" style="padding: 6px 12px; font-size: 0.9rem;">Pay / Mark as Paid</button></form>
                             <?php else: ?>
                                 <span style="color:var(--muted)">-</span>
                             <?php endif; ?>

@@ -8,6 +8,7 @@ $pdo = getConnection();
 // Ensure the status column is up-to-date to prevent silent failures on update.
 try {
     $pdo->exec("ALTER TABLE monthly_bills MODIFY COLUMN status ENUM('pending', 'submitted', 'confirmed') DEFAULT 'pending'");
+    $pdo->exec("ALTER TABLE monthly_bills ADD COLUMN transaction_id VARCHAR(255) NULL AFTER status");
 } catch (PDOException $e) {
     // Suppress errors if table doesn't exist yet or permissions are wrong. The main query will handle it.
 }
@@ -75,16 +76,15 @@ try {
                 <p style="color:var(--muted)">No pending payment requests to confirm.</p>
             <?php else: ?>
                 <table>
-                    <thead><tr><th>Student</th><th>Month</th><th>Mess Bill</th><th>Fine</th><th>Total Amount</th><th>Payment Status</th><th>Action</th></tr></thead>
+                    <thead><tr><th>Student</th><th>Month</th><th>Total Amount</th><th>Transaction ID</th><th>Status</th><th>Action</th></tr></thead>
                     <tbody>
                         <?php foreach ($requests as $r): ?>
                         <tr>
                             <td><?= htmlspecialchars($r['student_name']) ?><br><small style="color:var(--muted)"><?= htmlspecialchars($r['admission_no']) ?></small></td>
                             <td><?= date('F Y', strtotime($r['bill_month'] . '-01')) ?></td>
-                            <td>₹<?= number_format($r['mess_fee'], 2) ?></td>
-                            <td style="<?= $r['fine'] > 0 ? 'color:#e74c3c' : '' ?>">₹<?= number_format($r['fine'], 2) ?></td>
                             <td><strong>₹<?= number_format($r['total_amount'], 2) ?></strong></td>
-                            <td><span style="color:#3498db;font-weight:600">Payment Submitted</span></td>
+                            <td><?= htmlspecialchars($r['transaction_id'] ?? '-') ?></td>
+                            <td><span style="color:#3498db;font-weight:600">Submitted</span></td>
                             <td><form method="POST"><input type="hidden" name="bill_id" value="<?= $r['id'] ?>"><button type="submit" name="approve_payment" class="btn" style="padding: 6px 12px; font-size: 0.9rem; background: #27ae60;">Approve Payment</button></form></td>
                         </tr>
                         <?php endforeach; ?>

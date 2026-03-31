@@ -5,11 +5,24 @@ requireStaff();
 
 $pdo = getConnection();
 $hostelId = 1;
-$rooms = $pdo->query("SELECT r.*, (SELECT GROUP_CONCAT(s.name SEPARATOR ', ') FROM students s WHERE s.room_id = r.id AND s.is_active = 1) as occupants FROM rooms r WHERE r.hostel_id = $hostelId ORDER BY r.floor, r.room_number")->fetchAll(PDO::FETCH_ASSOC);
-$stats = $pdo->query("SELECT 
-    SUM(CASE WHEN current_occupancy >= capacity THEN 1 ELSE 0 END) as occupied,
-    SUM(CASE WHEN current_occupancy < capacity THEN 1 ELSE 0 END) as available
-FROM rooms WHERE hostel_id = $hostelId")->fetch(PDO::FETCH_ASSOC);
+$roomsQuery = $pdo->prepare("
+    SELECT 
+        r.id, r.room_number, r.capacity,
+        COUNT(s.id) as current_occupancy,
+        GROUP_CONCAT(s.name SEPARATOR ', ') as occupants
+    FROM rooms r
+    LEFT JOIN students s ON r.id = s.room_id AND s.is_active = 1
+    WHERE r.hostel_id = ?
+    GROUP BY r.id, r.room_number, r.capacity
+    ORDER BY r.room_number
+");
+$roomsQuery->execute([$hostelId]);
+$rooms = $roomsQuery->fetchAll(PDO::FETCH_ASSOC);
+
+$stats = ['occupied' => 0, 'available' => 0];
+foreach ($rooms as $r) {
+    $r['current_occupancy'] >= $r['capacity'] ? $stats['occupied']++ : $stats['available']++;
+}
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -32,13 +45,12 @@ FROM rooms WHERE hostel_id = $hostelId")->fetch(PDO::FETCH_ASSOC);
         <div class="section">
             <table>
                 <thead>
-                    <tr><th>Room</th><th>Floor</th><th>Capacity</th><th>Occupancy</th><th>Status</th><th>Occupants</th></tr>
+                    <tr><th>Room</th><th>Capacity</th><th>Occupancy</th><th>Status</th><th>Occupants</th></tr>
                 </thead>
                 <tbody>
                     <?php foreach ($rooms as $r): ?>
                     <tr>
                         <td><?= htmlspecialchars($r['room_number']) ?></td>
-                        <td><?= htmlspecialchars($r['floor'] ?? '-') ?></td>
                         <td><?= $r['capacity'] ?></td>
                         <td><?= $r['current_occupancy'] ?>/<?= $r['capacity'] ?></td>
                         <td><?= $r['current_occupancy'] >= $r['capacity'] ? 'Occupied' : 'Available' ?></td>

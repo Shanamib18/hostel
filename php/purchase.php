@@ -21,6 +21,7 @@ try {
         quantity DECIMAL(10,2) DEFAULT 1,
         amount DECIMAL(10,2) NOT NULL,
         purchase_date DATE NOT NULL,
+        added_by_id INT,
         description TEXT,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
     )");
@@ -38,6 +39,11 @@ try {
     $pdo->exec("ALTER TABLE purchases ADD COLUMN quantity DECIMAL(10,2) DEFAULT 1 AFTER bill_number");
 } catch (PDOException $e) {}
 
+// Ensure added_by_id column exists for older tables
+try {
+    $pdo->exec("ALTER TABLE purchases ADD COLUMN added_by_id INT AFTER purchase_date");
+} catch (PDOException $e) {}
+
 // Handle Add Purchase
 if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['action'] === 'add') {
     $item_name = $_POST['item_name'] ?? '';
@@ -48,8 +54,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action']) && $_POST['
     $description = $_POST['description'] ?? '';
     
     if ($item_name && $amount > 0) {
-        $stmt = $pdo->prepare("INSERT INTO purchases (item_name, bill_number, quantity, amount, purchase_date, description) VALUES (?, ?, ?, ?, ?, ?)");
-        if ($stmt->execute([$item_name, $bill_number, $quantity, $amount, $purchase_date, $description])) {
+        $stmt = $pdo->prepare("INSERT INTO purchases (item_name, bill_number, quantity, amount, purchase_date, description, added_by_id) VALUES (?, ?, ?, ?, ?, ?, ?)");
+        if ($stmt->execute([$item_name, $bill_number, $quantity, $amount, $purchase_date, $description, $_SESSION['user_id']])) {
             $message = "Purchase recorded successfully.";
             $message_type = 'success';
         } else {

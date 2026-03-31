@@ -7,7 +7,7 @@ $pdo = getConnection();
 $hostelId = 1;
 
 // Stats
-$roomStats = $pdo->query("SELECT COUNT(*) as total, SUM(current_occupancy) as occupied FROM rooms WHERE hostel_id = $hostelId")->fetch();
+$roomStats = $pdo->query("SELECT COUNT(r.id) as total, SUM(CASE WHEN COALESCE(s.current_occupancy, 0) >= r.capacity THEN 1 ELSE 0 END) as occupied FROM rooms r LEFT JOIN (SELECT room_id, COUNT(id) as current_occupancy FROM students WHERE is_active = 1 GROUP BY room_id) s ON r.id = s.room_id WHERE r.hostel_id = $hostelId")->fetch();
 $todayEntry = $pdo->query("SELECT COUNT(*) as c FROM entry_exit_logs e JOIN students s ON e.student_id = s.id WHERE s.hostel_id = $hostelId AND e.type = 'entry' AND DATE(e.recorded_at) = CURDATE()")->fetch()['c'];
 $todayExit = $pdo->query("SELECT COUNT(*) as c FROM entry_exit_logs e JOIN students s ON e.student_id = s.id WHERE s.hostel_id = $hostelId AND e.type = 'exit' AND DATE(e.recorded_at) = CURDATE()")->fetch()['c'];
 $messStats = $pdo->query("SELECT meal_type, COUNT(*) as c FROM mess_attendance m JOIN students s ON m.student_id = s.id WHERE s.hostel_id = $hostelId AND DATE(m.marked_at) = CURDATE() GROUP BY meal_type")->fetchAll(PDO::FETCH_KEY_PAIR);
